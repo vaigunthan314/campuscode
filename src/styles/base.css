@@ -1,0 +1,134 @@
+:root {
+  --bg: #f7f7f4;
+  --surface: #ffffff;
+  --surface-soft: #f0f0ec;
+  --text: #111111;
+  --text-soft: #4f4f4b;
+  --muted: #858580;
+  --border: #deded8;
+  --border-dark: #cfcfc8;
+  --lime: #a8e62e;
+  --lime-dark: #82b91a;
+  --purple: #7665ff;
+  --blue: #526eff;
+  --black: #111111;
+  --logo-purple: #7566ff;
+  --logo-lime: #8bcf19;
+  --mono: "DM Mono", "SFMono-Regular", Consolas, monospace;
+  --sans: "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  /* Mission: ultra-premium architectural palette */
+  --mission-white: #ffffff;
+  --mission-ink: #111111;
+  --mission-telemetry: #777777;
+  --mission-purple: #7455FF;
+  --mission-lime: #A5D85E;
+  --mission-border: #E6E6E6;
+  --mission-purple-soft: rgba(116, 85, 255, 0.10);
+  --mission-lime-soft: rgba(165, 216, 94, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: #000;
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+p {
+  margin-top: 0;
+}
+
+::selection {
+  background: var(--lime);
+  color: #111;
+}
+
+:focus-visible {
+  outline: 2px solid var(--purple);
+  outline-offset: 4px;
+}
+
+.campus-landing {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: clip;
+  background: var(--bg);
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 1000;
+  top: 12px;
+  left: 12px;
+  padding: 10px 14px;
+  background: var(--lime);
+  color: #111;
+  font: 500 10px/1 var(--mono);
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  transform: translateY(-160%);
+  transition: transform 0.2s ease;
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+main {
+  display: block;
+}
+
+section[id] {
+  scroll-margin-top: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
