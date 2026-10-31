@@ -1,0 +1,186 @@
+/* Shared section header — used by every section.
+   Scoped to .sh-header and its own children; nothing here targets globals. */
+
+.sh-header {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 64px);
+  box-sizing: border-box;
+}
+
+/* Full headers are always left aligned, even inside a centred wrapper. */
+.sh-header--full {
+  text-align: left;
+}
+
+/* Eyebrow-only headers sit inside an existing column, so they inherit that
+   column's left edge instead of adding a second page gutter. */
+.sh-header--eyebrow {
+  max-width: none;
+  padding-inline: 0;
+}
+
+.sh-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0;
+  color: #7c5cff;
+  font-family: var(--mono, "DM Mono", "SFMono-Regular", monospace);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.sh-eyebrow__line {
+  width: 28px;
+  height: 1.5px;
+  flex: none;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 520ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.sh-eyebrow__label {
+  opacity: 0;
+  transition: opacity 520ms ease 140ms;
+}
+
+.sh-header.is-visible .sh-eyebrow__line {
+  transform: scaleX(1);
+}
+
+.sh-header.is-visible .sh-eyebrow__label {
+  opacity: 1;
+}
+
+/* --- title row ----------------------------------------------------------- */
+
+.sh-title-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: clamp(18px, 3vw, 48px);
+  margin-top: clamp(16px, 2.4vw, 26px);
+}
+
+.sh-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  color: #111111;
+  font-family: var(--sans, "Inter", "Helvetica Neue", Arial, sans-serif);
+  font-size: clamp(40px, 6vw, 88px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.sh-title__clip {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.06em;
+}
+
+.sh-title__inner {
+  display: inline-block;
+  transform: translateY(105%);
+  transition: transform 500ms ease-out;
+}
+
+.sh-header.is-visible .sh-title__inner {
+  transform: translateY(0);
+}
+
+.sh-title__stop {
+  display: inline-block;
+  width: 0.14em;
+  height: 0.14em;
+  margin-left: 0.06em;
+  background: #b6e83a;
+  vertical-align: baseline;
+}
+
+.sh-subtitle {
+  flex: 0 1 auto;
+  max-width: 36ch;
+  margin: 0 0 0.4em;
+  color: #6b6b6b;
+  font-family: var(--mono, "DM Mono", "SFMono-Regular", monospace);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  line-height: 1.6;
+  text-align: right;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 600ms ease 400ms;
+}
+
+.sh-header.is-visible .sh-subtitle {
+  opacity: 1;
+}
+
+.sh-divider {
+  height: 1px;
+  margin-top: 32px;
+  margin-bottom: 48px;
+  background: rgba(17, 17, 17, 0.1);
+}
+
+/* The Experience header sits directly under the scrolling ticker. */
+.sh-header--after-ticker {
+  margin-top: clamp(32px, 6vh, 64px);
+}
+
+/* --- responsive ---------------------------------------------------------- */
+
+@media (max-width: 800px) {
+  .sh-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .sh-subtitle {
+    margin: 12px 0 0;
+    text-align: left;
+  }
+
+  .sh-divider {
+    margin-top: 24px;
+    margin-bottom: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sh-eyebrow {
+    gap: 9px;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+  }
+
+  .sh-eyebrow__line {
+    width: 20px;
+  }
+}
+
+/* --- reduced motion ------------------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-eyebrow__line,
+  .sh-eyebrow__label,
+  .sh-title__inner,
+  .sh-subtitle {
+    opacity: 1;
+    transform: none;
+    transition-duration: 1ms;
+  }
+}

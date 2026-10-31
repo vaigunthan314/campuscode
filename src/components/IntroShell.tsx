@@ -2,6 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react
 import { LoadingPrimer } from "./LoadingPrimer";
 import { CinematicIntro } from "./CinematicIntro";
 import { useAmbience } from "./Ambience";
+import { scrollToSection } from "./scrollToSection";
 
 type IntroShellProps = {
   reducedMotion: boolean;
@@ -9,13 +10,24 @@ type IntroShellProps = {
 
 const ENTRY_SCROLL_PX = 24;
 const AUDIO_RELEASE_MS = 1600;
+const SKIP_INTRO_KEY = "campuscode:skip-intro";
 
 export function IntroShell({ reducedMotion }: IntroShellProps) {
   const ambience = useAmbience();
   const { start, whoosh, stop } = ambience;
 
-  const [ready, setReady] = useState(false);
-  const [entered, setEntered] = useState(false);
+  // A return visit from an auth page skips the boot screen and starts on the
+  // finished hero instead of waiting for a scroll that never comes.
+  const [skipIntro] = useState(
+    () => sessionStorage.getItem(SKIP_INTRO_KEY) === "1",
+  );
+  const [ready, setReady] = useState(skipIntro);
+  const [entered, setEntered] = useState(skipIntro);
+
+  useEffect(() => {
+    if (!skipIntro) return;
+    sessionStorage.removeItem(SKIP_INTRO_KEY);
+  }, [skipIntro]);
 
   const whooshedRef = useRef(false);
 
@@ -72,6 +84,26 @@ export function IntroShell({ reducedMotion }: IntroShellProps) {
 
     return remove;
   }, [start]);
+
+  // Skip Intro must work while the intro still owns the scroll lock: retire the
+  // loading screen and the intro first, then scroll once the lock is released.
+  useEffect(() => {
+    const onSkip = (event: MouseEvent) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (!target.closest("a.skip-link")) return;
+
+      // Stop App's anchor handler from scrolling while html is still locked.
+      event.preventDefault();
+      whooshedRef.current = true;
+      setReady(true);
+      setEntered(true);
+      window.setTimeout(() => scrollToSection("about"), 90);
+    };
+
+    document.addEventListener("click", onSkip);
+    return () => document.removeEventListener("click", onSkip);
+  }, []);
 
   // Exactly one whoosh, on the first scroll that leaves the loading screen.
   useEffect(() => {

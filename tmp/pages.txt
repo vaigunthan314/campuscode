@@ -1,0 +1,314 @@
+function drawVerso(ctx: Ctx, index: number, texW: number, texH: number) {
+  const spread = SPREADS[index];
+  pageBase(ctx, texW, texH, "left");
+  pageFurniture(ctx, texW, texH, "left", spread.no);
+
+  const pad = 66;
+
+  setFont(ctx, 15, 500, "mono", PURPLE, "left", "alphabetic");
+  spaced(ctx, spread.kicker, pad, 152, 2, "left");
+
+  setFont(ctx, 104, 900, "sans", INK, "left", "alphabetic");
+  ctx.fillText(`${spread.no}`, pad, 268);
+
+  setFont(ctx, 54, 900, "sans", INK, "left", "alphabetic");
+  ctx.fillText(spread.title, pad, 336);
+
+  ctx.fillStyle = PURPLE;
+  ctx.fillRect(pad, 366, 52, 3);
+  ctx.fillStyle = LIME;
+  ctx.fillRect(pad + 60, 366, 14, 3);
+
+  setFont(ctx, 28, 400, "sans", INK_SOFT, "left", "alphabetic");
+  const bodyLines = wrapped(ctx, spread.body, texW - pad * 2 - 80);
+  bodyLines.forEach((line, i) => ctx.fillText(line, pad, 426 + i * 40));
+
+  setFont(ctx, 14, 400, "mono", "#aeaeae", "left", "alphabetic");
+  spaced(ctx, "FOUR STEPS · ONE FOLIO", pad, 540, 1.6, "left");
+  hairline(ctx, pad, 562, texW - pad - 30);
+
+  spread.rows.forEach(([no, label, note], i) => {
+    const rowY = 616 + i * 104;
+    setFont(ctx, 15, 600, "mono", PURPLE, "left", "alphabetic");
+    ctx.fillText(no, pad, rowY);
+    setFont(ctx, 27, 600, "sans", INK, "left", "alphabetic");
+    ctx.fillText(label, pad + 56, rowY);
+    setFont(ctx, 19, 400, "sans", GREY, "left", "alphabetic");
+    ctx.fillText(note, pad + 56, rowY + 32);
+    ctx.fillStyle = LIME;
+    ctx.beginPath();
+    ctx.arc(texW - pad - 40, rowY - 8, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+    hairline(ctx, pad, rowY + 58, texW - pad - 30);
+  });
+
+  setFont(ctx, 13, 400, "mono", "#b3b3b3", "left", "alphabetic");
+  spaced(ctx, "EDITORIAL FOLIO · SET IN INTER & DM MONO", pad, 940, 1.4, "left");
+
+  ctx.fillStyle = PURPLE;
+  ctx.fillRect(pad, 966, 56, 3);
+  ctx.fillStyle = LIME;
+  ctx.fillRect(pad + 64, 966, 14, 3);
+}
+
+function drawRecto(ctx: Ctx, index: number, texW: number, texH: number) {
+  const spread = SPREADS[index];
+  pageBase(ctx, texW, texH, "right");
+  pageFurniture(ctx, texW, texH, "right", spread.no);
+
+  const pad = 66;
+  const artX = pad;
+  const artY = 132;
+  const artW = texW - pad * 2 - 26;
+  const artH = 440;
+
+  artPanel(ctx, index, artX, artY, artW, artH);
+
+  setFont(ctx, 13, 400, "mono", GREY, "left", "alphabetic");
+  spaced(ctx, spread.caption.toUpperCase(), pad, artY + artH + 40, 1.4, "left");
+
+  setFont(ctx, 46, 900, "sans", INK, "left", "alphabetic");
+  ctx.fillText(spread.title, pad, artY + artH + 104);
+
+  setFont(ctx, 25, 400, "sans", INK_SOFT, "left", "alphabetic");
+  const lines = wrapped(ctx, spread.body, artW - 60);
+  lines.forEach((line, i) => ctx.fillText(line, pad, artY + artH + 144 + i * 34));
+
+  ctx.fillStyle = PURPLE;
+  ctx.fillRect(pad, artY + artH + 208, 52, 3);
+  ctx.fillStyle = LIME;
+  ctx.fillRect(pad + 60, artY + artH + 208, 14, 3);
+
+  const colW = artW / 3;
+  spread.meta.forEach(([label, value], i) => {
+    const cx = pad + i * colW;
+    setFont(ctx, 13, 400, "mono", GREY, "left", "alphabetic");
+    spaced(ctx, label, cx, artY + artH + 258, 1.3, "left");
+    setFont(ctx, 32, 700, "sans", INK, "left", "alphabetic");
+    ctx.fillText(value, cx, artY + artH + 300);
+    if (i > 0) {
+      ctx.strokeStyle = BORDER;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(cx - 20, artY + artH + 238);
+      ctx.lineTo(cx - 20, artY + artH + 306);
+      ctx.stroke();
+    }
+  });
+
+  setFont(ctx, 13, 400, "mono", "#b3b3b3", "left", "alphabetic");
+  spaced(ctx, "CAMPUSCODE · HOW IT WORKS", pad, 940, 1.4, "left");
+
+  ctx.fillStyle = PURPLE;
+  ctx.fillRect(pad, 966, 56, 3);
+  ctx.fillStyle = LIME;
+  ctx.fillRect(pad + 64, 966, 14, 3);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Cover art                                                         */
+/* ------------------------------------------------------------------ */
+
+function drawSlashMark(ctx: Ctx, x: number, y: number, h: number, colors: readonly string[]) {
+  colors.forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.save();
+    ctx.translate(x + i * (h * 0.2), y);
+    ctx.transform(1, 0, -0.28, 1, 0, 0);
+    ctx.fillRect(0, 0, h * 0.075, h);
+    ctx.restore();
+  });
+}
+
+function drawCover(ctx: Ctx, w: number, h: number) {
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, w, h);
+
+  const light = ctx.createRadialGradient(w * 0.36, h * 0.24, w * 0.05, w * 0.42, h * 0.3, h * 0.8);
+  light.addColorStop(0, "rgba(255, 255, 255, 0)");
+  light.addColorStop(1, "rgba(229, 229, 229, 0.42)");
+  ctx.fillStyle = light;
+  ctx.fillRect(0, 0, w, h);
+
+  // spine-side crease and board falloff
+  const crease = ctx.createLinearGradient(0, 0, w * 0.13, 0);
+  crease.addColorStop(0, "rgba(18, 18, 18, 0.13)");
+  crease.addColorStop(0.28, "rgba(18, 18, 18, 0.045)");
+  crease.addColorStop(1, "rgba(18, 18, 18, 0)");
+  ctx.fillStyle = crease;
+  ctx.fillRect(0, 0, w * 0.13, h);
+
+  const foot = ctx.createLinearGradient(0, h * 0.7, 0, h);
+  foot.addColorStop(0, "rgba(232, 232, 232, 0)");
+  foot.addColorStop(1, "rgba(226, 226, 226, 0.5)");
+  ctx.fillStyle = foot;
+  ctx.fillRect(0, 0, w, h);
+
+  // double printed frame
+  ctx.strokeStyle = "rgba(17, 17, 17, 0.09)";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(30, 30, w - 60, h - 60);
+  ctx.strokeStyle = "rgba(17, 17, 17, 0.05)";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(42, 42, w - 84, h - 84);
+
+  // corner brackets, printed
+  const b = 26;
+  ctx.strokeStyle = "rgba(17, 17, 17, 0.22)";
+  ctx.lineWidth = 1.5;
+  [
+    [30, 30, 1, 1],
+    [w - 30, 30, -1, 1],
+    [30, h - 30, 1, -1],
+    [w - 30, h - 30, -1, -1],
+  ].forEach(([x, y, sx, sy]) => {
+    ctx.beginPath();
+    ctx.moveTo(x + sx * b, y);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x, y + sy * b);
+    ctx.stroke();
+  });
+
+  // hinge shadow just inside the spine edge
+  const hinge = ctx.createLinearGradient(72, 0, 108, 0);
+  hinge.addColorStop(0, "rgba(18, 18, 18, 0.09)");
+  hinge.addColorStop(1, "rgba(18, 18, 18, 0)");
+  ctx.fillStyle = hinge;
+  ctx.fillRect(72, 46, 36, h - 92);
+}
+
+function drawCoverDetail(ctx: Ctx, w: number, h: number) {
+  ctx.clearRect(0, 0, w, h);
+
+  drawSlashMark(ctx, 96, 118, 44, ["rgba(17, 17, 17, 0.34)", "rgba(116, 85, 255, 0.75)", "rgba(165, 216, 94, 0.9)"]);
+
+  setFont(ctx, 13, 500, "mono", "#b0b0b0", "right", "alphabetic");
+  spaced(ctx, "FOLIO 03 · PRINT 04", w - 96, 128, 2, "right");
+
+  setFont(ctx, 19, 500, "mono", "#3b3b3b", "center", "alphabetic");
+  spaced(ctx, "CAMPUSCODE", w / 2, 172, 9, "center");
+
+  ctx.fillStyle = PURPLE;
+  ctx.fillRect(w / 2 - 52, 200, 104, 3);
+
+  setFont(ctx, 264, 900, "sans", INK, "center", "middle");
+  ctx.fillText("CC", w / 2, h * 0.44);
+
+  ctx.fillStyle = PURPLE;
+  ctx.fillRect(w / 2 - 214, h * 0.44 + 142, 428, 4);
+
+  setFont(ctx, 28, 600, "sans", INK, "center", "alphabetic");
+  spaced(ctx, "HACKATHON ARENA", w / 2, h * 0.44 + 212, 5, "center");
+
+  setFont(ctx, 15, 400, "mono", "#8f8f8f", "center", "alphabetic");
+  spaced(ctx, "STUDENT BUILD FOLIO", w / 2, h * 0.44 + 248, 4, "center");
+
+  hairline(ctx, 96, h - 196, w - 96, "#e6e6e6");
+
+  setFont(ctx, 15, 500, "mono", "#3b3b3b", "left", "alphabetic");
+  spaced(ctx, "CAMPUSCODE · 2026", 110, h - 152, 3, "left");
+
+  setFont(ctx, 15, 600, "mono", PURPLE, "right", "alphabetic");
+  spaced(ctx, "00", w - 110, h - 152, 3, "right");
+
+  setFont(ctx, 13, 400, "mono", "#b0b0b0", "left", "alphabetic");
+  spaced(ctx, "STUDENT BUILD FOLIO · CAMPUSCODE", 110, h - 108, 2, "left");
+
+  ctx.fillStyle = LIME;
+  [
+    [110, 118],
+    [w - 110, 118],
+    [110, h - 232],
+    [w - 110, h - 232],
+  ].forEach(([x, y]) => {
+    ctx.beginPath();
+    ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // printed spine label running up the cover's left edge
+  ctx.save();
+  ctx.translate(74, h / 2);
+  ctx.rotate(-Math.PI / 2);
+  setFont(ctx, 14, 500, "mono", "#a3a3a3", "center", "middle");
+  spaced(ctx, "CAMPUSCODE — HACKATHON ARENA", 0, 0, 3, "center");
+  ctx.restore();
+}
+
+function drawInsideCover(ctx: Ctx, w: number, h: number) {
+  pageBase(ctx, w, h, "right");
+  pageFurniture(ctx, w, h, "right", "00");
+
+  const pad = 88;
+
+  setFont(ctx, 15, 600, "mono", PURPLE, "left", "alphabetic");
+  spaced(ctx, "CAMPUSCODE", pad, 168, 5, "left");
+
+  hairline(ctx, pad, 196, w - pad);
+
+  setFont(ctx, 24, 400, "sans", INK_SOFT, "left", "alphabetic");
+  const lines = wrapped(
+    ctx,
+    "A working folio for student builders. Four steps from the first brief to the arena floor.",
+    w - pad * 2 - 30,
+  );
+  lines.forEach((line, i) => ctx.fillText(line, pad, 264 + i * 36));
+
+  setFont(ctx, 14, 400, "mono", "#aeaeae", "left", "alphabetic");
+  spaced(ctx, "INDEX — HOW IT WORKS", pad, 448, 1.6, "left");
+  ctx.fillStyle = LIME;
+  ctx.beginPath();
+  ctx.arc(w - pad - 6, 444, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  [["01", "DISCOVER"], ["02", "TEAM UP"], ["03", "BUILD"], ["04", "SHIP"]].forEach(
+    ([no, label], i) => {
+      const y = 512 + i * 68;
+      setFont(ctx, 14, 600, "mono", i === 0 ? PURPLE : "#b0b0b0", "left", "alphabetic");
+      ctx.fillText(no, pad, y);
+      setFont(ctx, 26, 600, "sans", i === 0 ? INK : INK_SOFT, "left", "alphabetic");
+      ctx.fillText(label, pad + 56, y);
+      hairline(ctx, pad, y + 26, w - pad);
+    },
+  );
+
+  // printed colophon plate
+  const plateY = 806;
+  ctx.fillStyle = PANEL;
+  roundRect(ctx, pad, plateY, w - pad * 2, 152, 8);
+  ctx.fill();
+  ctx.strokeStyle = BORDER;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  setFont(ctx, 13, 400, "mono", GREY, "left", "alphabetic");
+  spaced(ctx, "FOLIO 03 · PRINT 04", pad + 26, plateY + 46, 1.4, "left");
+  spaced(ctx, "SET IN INTER & DM MONO", pad + 26, plateY + 78, 1.4, "left");
+  spaced(ctx, "CAMPUSCODE · 2026", pad + 26, plateY + 110, 1.4, "left");
+
+  ctx.fillStyle = PURPLE;
+  ctx.fillRect(w - pad - 66, plateY + 40, 40, 3);
+  ctx.fillStyle = LIME;
+  ctx.fillRect(w - pad - 80, plateY + 52, 14, 3);
+
+  setFont(ctx, 13, 400, "mono", "#b3b3b3", "left", "alphabetic");
+  spaced(ctx, "INSIDE FRONT COVER", pad, plateY + 208, 1.4, "left");
+}
+
+function drawEdge(ctx: Ctx, w: number, h: number) {
+  ctx.clearRect(0, 0, w, h);
+  ctx.fillStyle = "#fbfbfb";
+  ctx.fillRect(0, 0, w, h);
+  for (let x = 0; x < w; x += 4) {
+    ctx.fillStyle = x % 8 === 0 ? "rgba(150, 150, 150, 0.34)" : "rgba(196, 196, 196, 0.2)";
+    ctx.fillRect(x, 0, 1.2, h);
+  }
+  const shade = ctx.createLinearGradient(0, 0, 0, h);
+  shade.addColorStop(0, "rgba(255, 255, 255, 0.6)");
+  shade.addColorStop(0.42, "rgba(255, 255, 255, 0)");
+  shade.addColorStop(1, "rgba(92, 92, 92, 0.16)");
+  ctx.fillStyle = shade;
+  ctx.fillRect(0, 0, w, h);
+}
+

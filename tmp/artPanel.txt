@@ -1,0 +1,307 @@
+function artPanel(
+  ctx: Ctx,
+  index: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+) {
+  ctx.save();
+  ctx.fillStyle = PANEL;
+  roundRect(ctx, x, y, w, h, 10);
+  ctx.fill();
+  ctx.strokeStyle = "#ececec";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+
+  // corner registration ticks
+  ctx.strokeStyle = "rgba(116, 85, 255, 0.36)";
+  ctx.lineWidth = 1;
+  const t = 10;
+  [
+    [x + 12, y + 12, 1, 1],
+    [x + w - 12, y + 12, -1, 1],
+    [x + 12, y + h - 12, 1, -1],
+    [x + w - 12, y + h - 12, -1, -1],
+  ].forEach(([px, py, sx, sy]) => {
+    ctx.beginPath();
+    ctx.moveTo(px, py + sy * t);
+    ctx.lineTo(px, py);
+    ctx.lineTo(px + sx * t, py);
+    ctx.stroke();
+  });
+
+  setFont(ctx, 14, 500, "mono", "#aeaeae", "left", "alphabetic");
+  spaced(ctx, `FIG. ${SPREADS[index].no}`, x + 30, y + 40, 1.4, "left");
+
+  ctx.fillStyle = LIME;
+  ctx.beginPath();
+  ctx.arc(x + w - 34, y + 36, 4.5, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.restore();
+
+  const pad = 30;
+  const top = y + 62;
+  const innerH = h - 62 - 30;
+
+  if (index === 0) {
+    // live challenge board
+    const gap = 18;
+    const cw = (w - pad * 2 - gap) / 2;
+    const ch = innerH;
+    const cards: ReadonlyArray<readonly [string, string, string, string, number]> = [
+      ["AI", "AI INNOVATION", "MAR 15—17", "248 BUILDERS", 0.68],
+      ["WEB", "FUTURE WEB", "APR 05—07", "186 BUILDERS", 0.42],
+    ];
+    cards.forEach(([tag, title, dates, count, fill], i) => {
+      const cx = x + pad + i * (cw + gap);
+      const cy = top;
+      ctx.fillStyle = "#ffffff";
+      roundRect(ctx, cx, cy, cw, ch, 8);
+      ctx.fill();
+      ctx.strokeStyle = BORDER;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = i === 0 ? PURPLE : INK;
+      roundRect(ctx, cx + 18, cy + 18, 62, 24, 4);
+      ctx.fill();
+      setFont(ctx, 12, 600, "mono", "#ffffff", "center", "middle");
+      ctx.fillText(tag, cx + 49, cy + 31);
+
+      setFont(ctx, 26, 800, "sans", INK, "left", "alphabetic");
+      ctx.fillText(title, cx + 18, cy + 96);
+
+      setFont(ctx, 14, 400, "mono", GREY, "left", "alphabetic");
+      ctx.fillText(dates, cx + 18, cy + 126);
+      ctx.fillText(count, cx + 18, cy + 148);
+
+      hairline(ctx, cx + 18, cy + 176, cx + cw - 18);
+
+      setFont(ctx, 13, 500, "mono", "#a3a3a3", "left", "alphabetic");
+      spaced(ctx, "BRIEFS OPEN", cx + 18, cy + 204, 1.2, "left");
+
+      const barY = cy + ch - 46;
+      ctx.fillStyle = "#eeeeee";
+      roundRect(ctx, cx + 18, barY, cw - 36, 8, 4);
+      ctx.fill();
+      ctx.fillStyle = i === 0 ? LIME : PURPLE;
+      roundRect(ctx, cx + 18, barY, (cw - 36) * fill, 8, 4);
+      ctx.fill();
+
+      ctx.fillStyle = i === 0 ? LIME : "#d6d6d6";
+      ctx.beginPath();
+      ctx.arc(cx + cw - 26, cy + 24, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  } else if (index === 1) {
+    // squad roster
+    const railW = 150;
+    const cardX = x + pad + railW + 14;
+    const cardW = w - pad * 2 - railW - 14;
+    const cardH = innerH;
+
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, cardX, top, cardW, cardH, 8);
+    ctx.fill();
+    ctx.strokeStyle = BORDER;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    setFont(ctx, 19, 700, "sans", INK, "left", "alphabetic");
+    ctx.fillText("Squad workspace", cardX + 22, top + 42);
+    setFont(ctx, 13, 400, "mono", GREY, "left", "alphabetic");
+    spaced(ctx, "3 BUILDERS ACTIVE", cardX + 22, top + 66, 1.2, "left");
+
+    const members: ReadonlyArray<readonly [string, string, string]> = [
+      ["PS", "PRIYA S.", "FULL STACK"],
+      ["MK", "MARCUS K.", "AI / ML"],
+      ["AR", "AYESHA R.", "DESIGN"],
+    ];
+    members.forEach(([initials, name, role], i) => {
+      const rowY = top + 96 + i * 66;
+      ctx.fillStyle = "#f6f6f6";
+      roundRect(ctx, cardX + 22, rowY, cardW - 44, 52, 7);
+      ctx.fill();
+      ctx.fillStyle = i === 0 ? PURPLE : i === 1 ? LIME : "#111111";
+      ctx.beginPath();
+      ctx.arc(cardX + 50, rowY + 26, 15, 0, Math.PI * 2);
+      ctx.fill();
+      setFont(ctx, 12, 700, "sans", "#ffffff", "center", "middle");
+      ctx.fillText(initials, cardX + 50, rowY + 27);
+      setFont(ctx, 14, 600, "sans", INK, "left", "middle");
+      ctx.fillText(name, cardX + 76, rowY + 26);
+      setFont(ctx, 12, 400, "mono", GREY, "right", "middle");
+      ctx.fillText(role, cardX + cardW - 44, rowY + 26);
+    });
+
+    setFont(ctx, 12, 400, "mono", "#b0b0b0", "left", "alphabetic");
+    spaced(ctx, "ONE WORKSPACE · ONE TEAM", cardX + 22, top + cardH - 28, 1.3, "left");
+
+    const avatars: ReadonlyArray<readonly [string, string]> = [
+      ["PS", PURPLE],
+      ["MK", LIME],
+      ["AR", INK],
+    ];
+    avatars.forEach(([initials, color], i) => {
+      const ay = top + 52 + i * 104;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(x + pad + 52, ay, 34, 0, Math.PI * 2);
+      ctx.fill();
+      setFont(ctx, 21, 700, "sans", "#ffffff", "center", "middle");
+      ctx.fillText(initials, x + pad + 52, ay + 1);
+      if (i < avatars.length - 1) {
+        ctx.strokeStyle = "#e4e4e4";
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath();
+        ctx.moveTo(x + pad + 52, ay + 36);
+        ctx.lineTo(x + pad + 52, ay + 68);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+    });
+  } else if (index === 2) {
+    // build week workbench
+    const editorW = (w - pad * 2) * 0.56;
+    const editorH = innerH;
+    const ex = x + pad;
+    const ey = top;
+
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, ex, ey, editorW, editorH, 8);
+    ctx.fill();
+    ctx.strokeStyle = BORDER;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = "#f6f6f6";
+    roundRect(ctx, ex + 1, ey + 1, editorW - 2, 40, 7);
+    ctx.fill();
+    hairline(ctx, ex + 1, ey + 41, ex + editorW - 1);
+
+    ["#d4d4d4", PURPLE, LIME].forEach((color, i) => {
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(ex + 22 + i * 14, ey + 21, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+    setFont(ctx, 12, 500, "mono", "#9a9a9a", "right", "middle");
+    ctx.fillText("BUILD.SHIP", ex + editorW - 20, ey + 21);
+
+    const code: ReadonlyArray<readonly [string, string]> = [
+      ["import", "{ CampusCode }"],
+      ["const", " app = new CampusCode("],
+      ["  project", ": \"campus-app\","],
+      ["  team", ": \"squad-01\","],
+      [")", ""],
+      ["app", ".ship()"],
+    ];
+    code.forEach(([key, rest], i) => {
+      const lineY = ey + 76 + i * 34;
+      setFont(ctx, 12, 400, "mono", "#c2c2c2", "left", "alphabetic");
+      ctx.fillText(String(i + 1).padStart(2, "0"), ex + 20, lineY);
+      setFont(ctx, 15, 500, "mono", PURPLE, "left", "alphabetic");
+      ctx.fillText(key, ex + 50, lineY);
+      setFont(ctx, 15, 400, "mono", "#777777", "left", "alphabetic");
+      ctx.fillText(rest, ex + 50 + ctx.measureText(key).width + 4, lineY);
+    });
+
+    ctx.fillStyle = INK;
+    roundRect(ctx, ex + 20, ey + editorH - 56, 128, 34, 6);
+    ctx.fill();
+    setFont(ctx, 12, 600, "mono", "#ffffff", "center", "middle");
+    ctx.fillText("RUN BUILD", ex + 84, ey + editorH - 39);
+
+    const px = ex + editorW + 16;
+    const pw = x + w - pad - px;
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, px, ey, pw, editorH, 8);
+    ctx.fill();
+    ctx.strokeStyle = BORDER;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    setFont(ctx, 16, 700, "sans", INK, "left", "alphabetic");
+    ctx.fillText("Campus app", px + 18, ey + 44);
+    setFont(ctx, 12, 400, "mono", GREY, "left", "alphabetic");
+    spaced(ctx, "PREVIEW", px + 18, ey + 68, 1.2, "left");
+
+    ctx.fillStyle = "#f2f2f2";
+    roundRect(ctx, px + 18, ey + 88, pw - 36, 36, 6);
+    ctx.fill();
+
+    ctx.fillStyle = PURPLE;
+    roundRect(ctx, px + 18, ey + 138, pw - 36, 60, 8);
+    ctx.fill();
+    setFont(ctx, 13, 600, "mono", "#ffffff", "center", "middle");
+    ctx.fillText("BUILD PROJECT", px + pw / 2, ey + 168);
+
+    [["12 ISSUES", LIME], ["8 SOLVED", PURPLE]].forEach(([label, color], i) => {
+      const rowY = ey + 226 + i * 28;
+      setFont(ctx, 12, 400, "mono", GREY, "left", "alphabetic");
+      ctx.fillText(String(label), px + 18, rowY);
+      ctx.fillStyle = String(color);
+      ctx.beginPath();
+      ctx.arc(px + pw - 28, rowY - 4, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  } else {
+    // submission desk
+    const panelW = w - pad * 2;
+    const panelH = innerH;
+    const px = x + pad;
+    const py = top;
+
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, px, py, panelW, panelH, 8);
+    ctx.fill();
+    ctx.strokeStyle = BORDER;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    ctx.fillStyle = PURPLE;
+    roundRect(ctx, px + 24, py + 24, 46, 46, 9);
+    ctx.fill();
+    setFont(ctx, 22, 700, "sans", "#ffffff", "center", "middle");
+    ctx.fillText("↑", px + 47, py + 48);
+
+    setFont(ctx, 23, 800, "sans", INK, "left", "alphabetic");
+    ctx.fillText("Ready for the arena", px + 86, py + 50);
+    setFont(ctx, 13, 400, "mono", GREY, "left", "alphabetic");
+    spaced(ctx, "PROJECT COMPLETE", px + 86, py + 74, 1.2, "left");
+
+    hairline(ctx, px + 24, py + 102, px + panelW - 24);
+
+    const checks: ReadonlyArray<readonly [string, boolean]> = [
+      ["BUILD", true],
+      ["TESTS", true],
+      ["REVIEW", false],
+    ];
+    checks.forEach(([label, done], i) => {
+      const rowY = py + 122 + i * 46;
+      ctx.fillStyle = done ? "rgba(165, 216, 94, 0.2)" : "#f6f6f6";
+      roundRect(ctx, px + 24, rowY, panelW - 48, 36, 6);
+      ctx.fill();
+      ctx.fillStyle = done ? LIME : "#dedede";
+      ctx.beginPath();
+      ctx.arc(px + 46, rowY + 18, 8, 0, Math.PI * 2);
+      ctx.fill();
+      setFont(ctx, 12, 700, "sans", done ? "#3f5c0d" : "#9a9a9a", "center", "middle");
+      ctx.fillText(done ? "✓" : "·", px + 46, rowY + 18);
+      setFont(ctx, 13, 600, "mono", INK_SOFT, "left", "middle");
+      spaced(ctx, label, px + 68, rowY + 18, 1.2, "left");
+      setFont(ctx, 12, 400, "mono", GREY, "right", "middle");
+      ctx.fillText(done ? "COMPLETE" : "IN REVIEW", px + panelW - 40, rowY + 18);
+    });
+
+    ctx.fillStyle = INK;
+    roundRect(ctx, px + 24, py + panelH - 64, panelW - 48, 40, 6);
+    ctx.fill();
+    setFont(ctx, 13, 600, "mono", "#ffffff", "center", "middle");
+    spaced(ctx, "→ SUBMIT TO ARENA", px + panelW / 2, py + panelH - 43, 1.4, "center");
+  }
+}
+

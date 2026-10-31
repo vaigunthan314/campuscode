@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { SectionHeader } from "./SectionHeader";
+import { SectionBackdrop } from "./SectionBackdrop";
 import type { KeyboardEvent as ReactKeyboardEvent } from "react";
 
 /* ------------------------------------------------------------------ */
@@ -165,7 +167,7 @@ function createSmoke(
 ): SmokeController {
   const ctx = canvas.getContext("2d", { alpha: true });
   const sprites = [0, 1, 2, 3, 4].map((i) =>
-    buildSprite(192, 104 + i * 13, 9173 + i * 733),
+    buildSprite(192, 150 + i * 11, 9173 + i * 733),
   );
 
   let width = 0;
@@ -499,7 +501,6 @@ export function Arena() {
     if (!stage) return;
 
     const stageWidth = stage.clientWidth;
-    const floor = stage.querySelector<HTMLElement>(".arena-floor");
 
     const first = slotRefs.current[0];
     const cardWidth = first?.offsetWidth ?? 280;
@@ -509,6 +510,8 @@ export function Arena() {
       : Math.min(cardWidth + 26, Math.max(cardWidth * 0.34, (stageWidth - 48 - cardWidth) / 2));
 
     const spread = spreadRef.current;
+    const activeSlot = focusRef.current.indexOf(Math.max(...focusRef.current));
+    const others = [0, 1, 2].filter((index) => index !== activeSlot);
 
     slotRefs.current.forEach((slot, i) => {
       const card = slot?.querySelector<HTMLElement>(".arena-card");
@@ -519,16 +522,20 @@ export function Arena() {
       const s = spread;
 
       // A phone cannot spread three readable cards side by side, so the deck
-      // stays a pile there: the chosen card simply lifts out of it.
+      // fans upward instead: the chosen card stays large and the other two
+      // keep a visible, tappable strip above it.
       const compactX = narrow ? base.x * 0.45 : base.x;
+      const rank = others.indexOf(i);
+      const narrowX = compactX + (rank < 0 ? 0 : rank === 0 ? -14 : 14);
+      const narrowY = rank < 0 ? -10 : -54 - rank * 34;
 
       const expandX = (i - 1) * sep;
       const expandY = focus * -16 - (1 - focus) * 2;
       const expandZ = focus * 86 - (1 - focus) * 26;
       const expandScale = 1 + focus * 0.045 - (1 - focus) * 0.015;
 
-      const x = compactX * (1 - s) + (narrow ? compactX : expandX) * s;
-      const y = base.y * (1 - s) + (narrow ? base.y - focus * 10 : expandY) * s;
+      const x = compactX * (1 - s) + (narrow ? narrowX : expandX) * s;
+      const y = base.y * (1 - s) + (narrow ? narrowY : expandY) * s;
       const z = base.z * (1 - s) + (narrow ? base.z + focus * 78 : expandZ) * s;
       const scale =
         base.scale * (1 - s) +
@@ -547,11 +554,6 @@ export function Arena() {
       card.classList.toggle("is-active", focus > 0.5);
       card.style.setProperty("--arena-focus", focus.toFixed(3));
     });
-
-    if (floor) {
-      floor.style.opacity = String(0.34 + spread * 0.4);
-      floor.style.transform = `translate3d(0,0,0) scaleX(${0.66 + spread * 0.34})`;
-    }
   }, []);
 
   /* --- motion loop ------------------------------------------------- */
@@ -669,18 +671,24 @@ export function Arena() {
     const controller = createSmoke(canvas, () => reducedRef.current);
     smokeRef.current = controller;
 
+    let measuredImmediately = false;
     let visible = false;
     const visibility = new IntersectionObserver(
       (entries) => {
         visible = entries[0]?.isIntersecting ?? false;
         controller.setRunning(visible && document.visibilityState === "visible");
+        if (!measuredImmediately) {
+          measuredImmediately = true;
+          requestAnimationFrame(() => controller.setRunning(visible && document.visibilityState === "visible"));
+        }
       },
       { rootMargin: "80px 0px" },
     );
     visibility.observe(stage);
 
-    const onVisibility = () =>
+    const onVisibility = () => {
       controller.setRunning(visible && document.visibilityState === "visible");
+    };
     document.addEventListener("visibilitychange", onVisibility);
 
     const resize = new ResizeObserver(() => {
@@ -767,7 +775,11 @@ export function Arena() {
     const onDocumentPointerDown = (event: PointerEvent) => {
       const stage = stageRef.current;
       if (!stage) return;
-      if (event.target instanceof Node && stage.contains(event.target)) return;
+      if (event.target instanceof Element) {
+        if (stage.contains(event.target)) return;
+        const card = event.target.closest<HTMLElement>(".arena-card");
+        if (card && card.getRootNode() === stage) return;
+      }
       if (expandedRef.current) collapse();
     };
 
@@ -810,20 +822,14 @@ export function Arena() {
       ref={sectionRef}
       data-expanded={expanded ? "true" : "false"}
     >
-      <div className="section-heading arena-heading">
-        <div className="arena-heading-left">
-          <h2 className="arena-title" aria-label="04 — Enter the arena">
-            <span className="arena-num">04</span>
-            <span className="arena-dash" aria-hidden="true">
-              —
-            </span>
-            <span className="arena-title-text">ENTER THE ARENA</span>
-          </h2>
-        </div>
-        <p className="arena-heading-support">ACTIVE CHALLENGES RIGHT NOW.</p>
-      </div>
+      <SectionBackdrop variant="arena" />
 
-      <div className="arena-rule" aria-hidden="true" />
+      <SectionHeader
+        number="04"
+        label="ENTER THE ARENA"
+        title="ENTER THE ARENA"
+        subtitle="ACTIVE CHALLENGES RIGHT NOW."
+      />
 
       <div
         className="arena-stage"
@@ -833,7 +839,6 @@ export function Arena() {
           if (expandedRef.current) collapse();
         }}
       >
-        <div className="arena-floor" aria-hidden="true" />
         <div className="arena-slashes" aria-hidden="true">
           <span className="arena-slash arena-slash--white" />
           <span className="arena-slash arena-slash--purple" />

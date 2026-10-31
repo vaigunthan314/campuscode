@@ -1,0 +1,26 @@
+import pc from "/Users/vaigunthansl/Desktop/Rebuild /node_modules/playwright-core/index.mjs";
+const browser = await pc.chromium.launch({ executablePath: await pc.chromium.executablePath(), args: ["--no-sandbox","--disable-gpu"], headless: true });
+const page = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+await page.goto("http://127.0.0.1:5173/", { waitUntil: "networkidle", timeout: 60000 });
+await page.waitForTimeout(6500);
+await page.evaluate(() => { document.documentElement.style.scrollBehavior = "auto"; const el = document.getElementById("hackathons"); scrollTo(0, el.getBoundingClientRect().top + scrollY); });
+await page.waitForTimeout(1800);
+await page.locator(".arena-card").first().tap();
+await page.waitForTimeout(1200);
+const boxes = await page.evaluate(() => [...document.querySelectorAll(".arena-card")].map((c) => {
+  const r = c.getBoundingClientRect();
+  return { title: c.querySelector(".arena-card-title")?.textContent, x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) };
+}));
+console.log("BOXES", JSON.stringify(boxes));
+// Tap the exposed strip of the third card.
+const third = boxes[2];
+await page.touchscreen.tap(third.x + 40, third.y + 18);
+await page.waitForTimeout(1300);
+console.log("SELECT3", await page.locator("#hackathons").getAttribute("data-expanded"), await page.locator(".arena-card").nth(2).getAttribute("aria-pressed"));
+await page.screenshot({ path: "/Users/vaigunthansl/Desktop/Rebuild /tmp/mobile-arena-select3.png" });
+// Tap selected card again to collapse.
+const third2 = await page.evaluate(() => { const r = document.querySelectorAll(".arena-card")[2].getBoundingClientRect(); return { x: r.x, y: r.y }; });
+await page.touchscreen.tap(third2.x + 40, third2.y + 60);
+await page.waitForTimeout(1000);
+console.log("COLLAPSE", await page.locator("#hackathons").getAttribute("data-expanded"));
+await browser.close();

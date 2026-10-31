@@ -1,0 +1,559 @@
+/* Experience player — scoped to .xv- classes plus the player surface.
+   Flat colours only. The existing .experience-video-* design is untouched. */
+
+.xv-surface {
+  cursor: pointer;
+  outline: none;
+  --tilt-x: 0;
+  --tilt-y: 0;
+  transform: perspective(1100px) rotateY(var(--tilt-x)) rotateX(var(--tilt-y));
+  will-change: transform;
+}
+
+.xv-surface:focus-visible {
+  outline: 2px solid #7665ff;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(118, 101, 255, 0.18);
+}
+
+/* Resting dark poster: deep near-black with a thin violet edge and soft lift. */
+.experience-video-placeholder {
+  background: #0d0d1f;
+  border: 1px solid rgba(115, 97, 245, 0.4);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(13, 13, 31, 0.25);
+  transition:
+    box-shadow 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.xv-surface:hover {
+  border-color: #a996ff;
+  box-shadow:
+    0 34px 84px -26px rgba(13, 13, 18, 0.98),
+    0 0 0 1px rgba(123, 97, 255, 0.14),
+    0 0 46px -12px rgba(123, 97, 255, 0.34);
+  transform: translateY(-4px) perspective(1100px) rotateY(var(--tilt-x)) rotateX(var(--tilt-y));
+}
+
+.xv-surface.is-entered {
+  transform: translateY(0) perspective(1100px) rotateY(var(--tilt-x)) rotateX(var(--tilt-y));
+  opacity: 1;
+}
+
+.experience-video-placeholder {
+  transition: opacity 640ms cubic-bezier(0.22, 1, 0.36, 1), transform 640ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0;
+  transform: translateY(18px) perspective(1100px) rotateY(0) rotateX(0) scale(0.96);
+}
+
+.xv-surface.is-entered.experience-video-placeholder {
+  opacity: 1;
+  transform: translateY(0) perspective(1100px) rotateY(var(--tilt-x)) rotateX(var(--tilt-y)) scale(1);
+}
+
+/* Subtle dotted grid over the dark poster. */
+.xv-surface .xv-poster-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(122, 101, 255, 0.22) 0.6px, transparent 0.6px);
+  background-size: 26px 26px;
+  opacity: 0;
+  transition: opacity 720ms ease 320ms;
+  pointer-events: none;
+}
+
+.xv-surface.is-entered .xv-poster-grid {
+  opacity: 0.55;
+}
+
+/* Slow-moving glow blobs behind the play button. */
+.xv-surface .xv-poster-glow {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 320px;
+  height: 320px;
+  margin: -160px 0 0 -160px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.xv-surface .xv-poster-glow--violet {
+  background: radial-gradient(circle at center, rgba(122, 101, 255, 0.4), rgba(122, 101, 255, 0) 70%);
+  transform: translate(-8px, -10px) scale(0.9);
+  animation: xv-glow-drift-v 22s ease-in-out infinite;
+}
+
+.xv-surface .xv-poster-glow--lime {
+  background: radial-gradient(circle at center, rgba(168, 230, 46, 0.34), rgba(168, 230, 46, 0) 72%);
+  transform: translate(10px, 12px) scale(0.9);
+  animation: xv-glow-drift-l 28s ease-in-out infinite;
+  animation-delay: -8s;
+}
+
+@keyframes xv-glow-drift-v {
+  0%, 100% {
+    transform: translate(-8px, -10px) scale(0.9);
+  }
+  50% {
+    transform: translate(6px, 8px) scale(1.08);
+  }
+}
+
+@keyframes xv-glow-drift-l {
+  0%, 100% {
+    transform: translate(10px, 12px) scale(0.9);
+  }
+  50% {
+    transform: translate(-10px, -8px) scale(1.12);
+  }
+}
+
+.xv-surface.is-entered .xv-poster-glow {
+  opacity: 1;
+}
+
+/* The round play button is centred, larger, solid violet with a glow ring. */
+.xv-surface .experience-play {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 2;
+  width: 96px;
+  height: 96px;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 0;
+  background: #7665ff;
+  color: #ffffff;
+  font-size: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%) scale(1);
+  transition:
+    opacity 260ms ease,
+    transform 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 220ms ease;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    0 0 30px -6px rgba(123, 97, 255, 0.6),
+    0 20px 44px -14px rgba(13, 13, 18, 0.95);
+  pointer-events: all;
+}
+
+.xv-surface .experience-play::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.35);
+  animation: xv-play-ring 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes xv-play-ring {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(123, 97, 255, 0.12);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(123, 97, 255, 0.0);
+  }
+}
+
+.xv-surface:hover .experience-play {
+  background: #8f80ff;
+  transform: translate(-50%, -50%) scale(1.08);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.24),
+    0 0 40px -4px rgba(123, 97, 255, 0.72),
+    0 24px 50px -16px rgba(13, 13, 18, 0.98);
+}
+
+.xv-surface .experience-play .experience-play-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 0;
+  height: 0;
+  margin: 0;
+  font-size: 0;
+  color: transparent;
+}
+
+.xv-surface .experience-play .experience-play-icon::before {
+  content: "";
+  display: inline-block;
+  width: 0;
+  height: 0;
+  margin-left: 3.8px;
+  border-style: solid;
+  border-width: 12px 0 12px 21px;
+  border-color: transparent transparent transparent #ffffff;
+  transform: translateX(-2px);
+}
+
+.xv-surface.is-playing .experience-play {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.8);
+  pointer-events: none;
+}
+
+.xv-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #0d0d1f;
+  pointer-events: none;
+  transition: opacity 320ms ease;
+}
+
+/* Solid scrim: the idle card stays dark, then lifts while the footage plays. */
+.xv-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(13, 13, 31, 0.72);
+  pointer-events: none;
+  transition: background-color 400ms ease;
+}
+
+.xv-surface.is-playing .xv-scrim {
+  background: rgba(13, 13, 31, 0.15);
+}
+
+/* Decorative labels sit above the video but never block the surface. */
+.xv-surface .experience-video-text,
+.xv-surface .experience-video-meta {
+  pointer-events: none;
+}
+
+.xv-surface .experience-video-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(255, 255, 255, 0.018) 2px,
+    rgba(255, 255, 255, 0.018) 4px
+  );
+  pointer-events: none;
+}
+
+.xv-surface .experience-play,
+.xv-surface .xv-live,
+.xv-surface .xv-glow-ring {
+  pointer-events: none;
+}
+
+/* LIVE STORY blink dot. */
+.xv-live {
+  position: absolute;
+  top: 22px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 480ms ease 420ms;
+}
+
+.xv-surface.is-entered .xv-live {
+  opacity: 1;
+}
+
+.xv-live::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a8e62e;
+  box-shadow: 0 0 8px rgba(168, 230, 46, 0.55);
+  animation: xv-live-blink 1.8s ease-in-out infinite;
+}
+
+@keyframes xv-live-blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Soft violet glow ring behind the play button. */
+.xv-glow-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 1;
+  width: 140px;
+  height: 140px;
+  margin: -70px 0 0 -70px;
+  border-radius: 50%;
+  background: radial-gradient(circle at center, rgba(123, 97, 255, 0.32), rgba(123, 97, 255, 0) 70%);
+  transform: scale(0.85);
+  opacity: 0;
+  transition:
+    opacity 420ms ease 360ms,
+    transform 480ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.xv-surface.is-entered .xv-glow-ring {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.xv-surface.is-playing .xv-glow-ring {
+  opacity: 0;
+  transform: scale(0.9) translateY(-6px);
+  transition:
+    opacity 220ms ease,
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.xv-error {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.8);
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+/* --- labels ------------------------------------------------------------ */
+
+.xv-surface .experience-video-text {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 480ms ease 480ms, transform 480ms cubic-bezier(0.22, 1, 0.36, 1) 480ms;
+}
+
+.xv-surface.is-entered .experience-video-text {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.xv-surface .experience-video-dash {
+  color: rgba(255, 255, 255, 0.26);
+}
+
+.xv-surface .experience-video-meta {
+  position: absolute;
+  bottom: 22px;
+  right: 22px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  opacity: 0;
+  transition: opacity 480ms ease 560ms;
+}
+
+.xv-surface.is-entered .experience-video-meta {
+  opacity: 1;
+}
+
+.xv-surface .experience-video-dot {
+  color: rgba(255, 255, 255, 0.24);
+}
+
+/* --- controls while playing --------------------------------------------- */
+
+.xv-surface.is-playing .experience-video-meta {
+  display: none;
+}
+
+.xv-controls {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 18px;
+  z-index: 3;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(13, 13, 18, 0.82);
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 220ms ease, transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.xv-surface.is-playing .xv-controls {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.xv-seek {
+  display: block;
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  accent-color: var(--lime, #a8e62e);
+  cursor: pointer;
+}
+
+.xv-controls__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 6px;
+}
+
+.xv-btn {
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.xv-btn:hover,
+.xv-btn:focus-visible {
+  background: #ffffff;
+  color: #111111;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.xv-btn:last-child {
+  margin-left: auto;
+}
+
+.xv-controls__time {
+  color: rgba(255, 255, 255, 0.55);
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  min-width: 54px;
+}
+
+/* --- links ------------------------------------------------------------- */
+
+.xv-surface .experience-watch-link,
+.xv-surface .experience-scroll-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.xv-surface .experience-watch-link::after,
+.xv-surface .experience-scroll-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  transition: width 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.xv-surface .experience-watch-link:hover::after,
+.xv-surface .experience-scroll-link:hover::after {
+  width: 100%;
+}
+
+.xv-surface .experience-watch-link:hover,
+.xv-surface .experience-scroll-link:hover {
+  transform: translateX(4px);
+}
+
+.xv-surface .link-arrow {
+  display: inline-block;
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.xv-surface .experience-watch-link:hover .link-arrow,
+.xv-surface .experience-scroll-link:hover .link-arrow {
+  transform: translateX(4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .xv-surface {
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .xv-surface:hover {
+    transform: none !important;
+  }
+
+  .xv-surface .experience-play,
+  .xv-surface:hover .experience-play {
+    transform: translate(-50%, -50%);
+    transition: opacity 260ms ease;
+  }
+
+  .xv-surface .experience-play .experience-play-icon::before {
+    transform: none;
+  }
+
+  .xv-live::before {
+    animation: none;
+  }
+
+  .xv-glow-ring {
+    animation: none;
+  }
+
+  .xv-poster-glow--violet,
+  .xv-poster-glow--lime {
+    animation: none;
+  }
+
+  .xv-poster-grid {
+    transition: none;
+    opacity: 0.55;
+  }
+
+  .xv-video {
+    opacity: 1;
+  }
+}

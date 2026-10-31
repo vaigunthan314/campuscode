@@ -1,0 +1,764 @@
+/* Decorative section backdrop — scoped to .bg-* classes only.
+   Flat colours, no gradients, no blur, no glow. All motion is transform/opacity. */
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint style;
+}
+
+/* --- blueprint grid -------------------------------------------------- */
+
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.bg-grid-line {
+  fill: none;
+  stroke: rgba(17, 17, 17, 0.05);
+  stroke-width: 1;
+}
+
+.bg-grid-strong {
+  fill: none;
+  stroke: rgba(17, 17, 17, 0.075);
+  stroke-width: 1;
+}
+
+.bg-grid-drift {
+  animation: bgGridDrift 40s linear infinite;
+}
+
+@keyframes bgGridDrift {
+  to {
+    transform: translate(64px, 64px);
+  }
+}
+
+/* --- crosshairs ------------------------------------------------------ */
+
+.bg-cross {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  opacity: 0.25;
+  animation: bgCrossPulse 6s ease-in-out infinite;
+}
+
+.bg-cross::before,
+.bg-cross::after {
+  content: "";
+  position: absolute;
+  background: rgba(17, 17, 17, 0.28);
+}
+
+.bg-cross::before {
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 100%;
+}
+
+.bg-cross::after {
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 1px;
+}
+
+.bg-cross--1 {
+  top: 16%;
+  left: 12%;
+}
+
+.bg-cross--2 {
+  top: 64%;
+  right: 14%;
+  animation-duration: 9s;
+  animation-delay: 1.4s;
+}
+
+.bg-cross--3 {
+  bottom: 14%;
+  left: 38%;
+  animation-duration: 7.5s;
+  animation-delay: 3.1s;
+}
+
+@keyframes bgCrossPulse {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* --- edge rulers ----------------------------------------------------- */
+
+.bg-ruler {
+  position: absolute;
+  top: 14%;
+  bottom: 14%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  width: 20px;
+  color: #a8a8a8;
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.bg-ruler--left {
+  left: 18px;
+  border-left: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.bg-ruler--right {
+  right: 18px;
+  border-right: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.bg-ruler i {
+  display: block;
+  width: 7px;
+  height: 1px;
+  background: rgba(17, 17, 17, 0.12);
+}
+
+/* --- folio: rings ---------------------------------------------------- */
+
+.bg-rings {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.bg-ring {
+  position: absolute;
+  border-radius: 50%;
+}
+
+.bg-ring--a {
+  width: 70vmin;
+  height: 70vmin;
+  border: 1.5px solid rgba(116, 85, 255, 0.12);
+  animation: bgSpin 60s linear infinite;
+}
+
+.bg-ring--b {
+  width: 90vmin;
+  height: 90vmin;
+  border: 1px dashed rgba(116, 85, 255, 0.12);
+  animation: bgSpinRev 90s linear infinite;
+}
+
+.bg-ring-dot {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.bg-ring-dot--v {
+  background: rgba(116, 85, 255, 0.55);
+}
+
+.bg-ring-dot--l {
+  background: rgba(165, 216, 94, 0.7);
+}
+
+.bg-ring-dot:nth-of-type(1) {
+  top: -4px;
+  left: 50%;
+}
+
+.bg-ring-dot:nth-of-type(2) {
+  top: 50%;
+  right: -4px;
+}
+
+.bg-ring-dot:nth-of-type(3) {
+  bottom: -4px;
+  left: 50%;
+}
+
+.bg-ring-dot:nth-of-type(4) {
+  top: 50%;
+  left: -4px;
+}
+
+@keyframes bgSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bgSpinRev {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+/* --- folio: paper sheets -------------------------------------------- */
+
+.bg-sheet {
+  position: absolute;
+  padding: 14px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.92);
+  animation: bgSheetFloat 10s ease-in-out infinite;
+}
+
+/* Two stacked "text" rules, drawn with pseudo elements to keep the DOM small. */
+.bg-sheet::before,
+.bg-sheet::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  height: 2px;
+  background: rgba(17, 17, 17, 0.09);
+}
+
+.bg-sheet::before {
+  top: 18px;
+  right: 34px;
+}
+
+.bg-sheet::after {
+  top: 28px;
+  right: 62px;
+}
+
+.bg-sheet--1 {
+  top: 22%;
+  left: 4%;
+  width: 128px;
+  height: 158px;
+  transform: rotate(-6deg);
+}
+
+.bg-sheet--2 {
+  bottom: 14%;
+  left: 9%;
+  width: 104px;
+  height: 128px;
+  transform: rotate(4deg);
+  animation-duration: 13s;
+  animation-delay: 1.2s;
+}
+
+.bg-sheet--3 {
+  top: 26%;
+  right: 5%;
+  width: 118px;
+  height: 146px;
+  transform: rotate(5deg);
+  animation-duration: 11.5s;
+  animation-delay: 0.6s;
+}
+
+.bg-sheet--4 {
+  bottom: 17%;
+  right: 10%;
+  width: 96px;
+  height: 120px;
+  transform: rotate(-3deg);
+  animation-duration: 8.5s;
+  animation-delay: 2.4s;
+}
+
+@keyframes bgSheetFloat {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(2.5deg);
+  }
+}
+
+/* --- folio: slash mark ---------------------------------------------- */
+
+.bg-slashset {
+  position: absolute;
+  right: 12%;
+  bottom: 6%;
+  display: flex;
+  gap: 10px;
+  animation: bgSlashDrift 12s ease-in-out infinite;
+}
+
+.bg-slash {
+  display: block;
+  width: 22px;
+  height: 132px;
+  border-radius: 2px;
+  transform: skewX(-15deg);
+}
+
+.bg-slash--v {
+  background: rgba(116, 85, 255, 0.16);
+}
+
+.bg-slash--k {
+  background: rgba(17, 17, 17, 0.1);
+}
+
+.bg-slash--l {
+  background: rgba(165, 216, 94, 0.32);
+}
+
+@keyframes bgSlashDrift {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(24px, -18px);
+  }
+}
+
+/* --- folio: step tags ------------------------------------------------ */
+
+.bg-tag {
+  position: absolute;
+  padding: 6px 10px;
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: #9a9a9a;
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  animation: bgTagBob 8s ease-in-out infinite;
+}
+
+.bg-tag--1 {
+  top: 40%;
+  left: 16%;
+}
+
+.bg-tag--2 {
+  top: 74%;
+  right: 20%;
+  animation-duration: 10s;
+  animation-delay: 1.8s;
+}
+
+.bg-tag--3 {
+  top: 12%;
+  right: 26%;
+  animation-duration: 9s;
+  animation-delay: 0.9s;
+}
+
+@keyframes bgTagBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* --- arena: stage ---------------------------------------------------- */
+
+.bg-stage {
+  position: absolute;
+  left: 50%;
+  bottom: 7%;
+  width: 70%;
+  height: 230px;
+  transform: translateX(-50%);
+}
+
+.bg-stage-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(116, 85, 255, 0.08);
+  animation: bgStagePulse 8s ease-in-out infinite;
+}
+
+.bg-stage-line {
+  position: absolute;
+  inset: -14px -22px;
+  border: 1px solid rgba(116, 85, 255, 0.18);
+  border-radius: 50%;
+  animation: bgSpin 46s linear infinite;
+}
+
+@keyframes bgStagePulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+/* --- arena: floating outlines --------------------------------------- */
+
+.bg-shape {
+  position: absolute;
+  animation: bgShapeDrift 10s ease-in-out infinite;
+}
+
+.bg-shape--ring {
+  border: 1.5px solid rgba(116, 85, 255, 0.24);
+  border-radius: 50%;
+}
+
+.bg-shape--box {
+  border: 1.5px solid rgba(165, 216, 94, 0.4);
+  border-radius: 14px;
+}
+
+.bg-shape--1 {
+  top: 18%;
+  left: 4%;
+  width: 132px;
+  height: 132px;
+}
+
+.bg-shape--2 {
+  top: 54%;
+  right: 3%;
+  width: 86px;
+  height: 86px;
+  animation-duration: 14s;
+  animation-delay: 1.6s;
+}
+
+.bg-shape--3 {
+  top: 26%;
+  right: 9%;
+  width: 96px;
+  height: 96px;
+  transform: rotate(12deg);
+  animation-duration: 16s;
+  animation-delay: 0.8s;
+}
+
+.bg-shape--4 {
+  bottom: 16%;
+  left: 8%;
+  width: 74px;
+  height: 74px;
+  transform: rotate(-9deg);
+  animation-duration: 12s;
+  animation-delay: 2.2s;
+}
+
+@keyframes bgShapeDrift {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -14px;
+  }
+}
+
+/* --- arena: speed lines --------------------------------------------- */
+
+.bg-speeds {
+  position: absolute;
+  inset: 0;
+}
+
+.bg-speeds i {
+  position: absolute;
+  width: 2px;
+  height: 150px;
+  border-radius: 2px;
+  transform: skewX(-28deg);
+  animation: bgSpeedRun 18s linear infinite;
+}
+
+.bg-speeds i:nth-child(odd) {
+  background: rgba(165, 216, 94, 0.3);
+}
+
+.bg-speeds i:nth-child(even) {
+  background: rgba(116, 85, 255, 0.16);
+}
+
+.bg-speeds i:nth-child(1) {
+  left: 14%;
+  top: 34%;
+}
+
+.bg-speeds i:nth-child(2) {
+  left: 24%;
+  top: 58%;
+  animation-duration: 22s;
+  animation-delay: 3s;
+}
+
+.bg-speeds i:nth-child(3) {
+  left: 38%;
+  top: 22%;
+  animation-duration: 24s;
+  animation-delay: 6s;
+}
+
+.bg-speeds i:nth-child(4) {
+  left: 62%;
+  top: 62%;
+  animation-duration: 16s;
+  animation-delay: 2s;
+}
+
+.bg-speeds i:nth-child(5) {
+  left: 76%;
+  top: 28%;
+  animation-duration: 20s;
+  animation-delay: 5s;
+}
+
+.bg-speeds i:nth-child(6) {
+  left: 88%;
+  top: 52%;
+  animation-duration: 14s;
+  animation-delay: 8s;
+}
+
+@keyframes bgSpeedRun {
+  0% {
+    transform: translate(-40px, 26px) skewX(-28deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(40px, -26px) skewX(-28deg);
+    opacity: 0;
+  }
+}
+
+/* --- arena: outlined word ------------------------------------------- */
+
+.bg-word {
+  position: absolute;
+  left: 4%;
+  bottom: 12%;
+  display: block;
+  width: 92%;
+  height: auto;
+  animation: bgWordDrift 30s ease-in-out infinite;
+}
+
+.bg-word text {
+  fill: none;
+  stroke: rgba(17, 17, 17, 0.06);
+  stroke-width: 1.5;
+  font-family: var(--sans, "Inter", "Helvetica Neue", Arial, sans-serif);
+  font-size: 168px;
+  font-weight: 900;
+  letter-spacing: -4px;
+}
+
+@keyframes bgWordDrift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(40px);
+  }
+}
+
+/* --- arena: confetti ------------------------------------------------- */
+
+.bg-confetti {
+  position: absolute;
+  inset: 0;
+}
+
+.bg-confetti i {
+  position: absolute;
+  bottom: -30px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: rgba(116, 85, 255, 0.4);
+  animation: bgConfettiRise 14s linear infinite;
+}
+
+.bg-confetti i:nth-child(3n) {
+  background: rgba(165, 216, 94, 0.55);
+}
+
+.bg-confetti i:nth-child(3n + 1) {
+  border-radius: 2px;
+}
+
+.bg-confetti i:nth-child(1) {
+  left: 8%;
+  animation-duration: 12s;
+}
+
+.bg-confetti i:nth-child(2) {
+  left: 18%;
+  animation-duration: 18s;
+  animation-delay: 3s;
+}
+
+.bg-confetti i:nth-child(3) {
+  left: 28%;
+  animation-duration: 15s;
+  animation-delay: 6s;
+}
+
+.bg-confetti i:nth-child(4) {
+  left: 36%;
+  animation-duration: 11s;
+  animation-delay: 1.5s;
+}
+
+.bg-confetti i:nth-child(5) {
+  left: 46%;
+  animation-duration: 17s;
+  animation-delay: 4s;
+}
+
+.bg-confetti i:nth-child(6) {
+  left: 56%;
+  animation-duration: 13s;
+  animation-delay: 7s;
+}
+
+.bg-confetti i:nth-child(7) {
+  left: 64%;
+  animation-duration: 16s;
+  animation-delay: 2.5s;
+}
+
+.bg-confetti i:nth-child(8) {
+  left: 72%;
+  animation-duration: 12s;
+  animation-delay: 5.5s;
+}
+
+.bg-confetti i:nth-child(9) {
+  left: 80%;
+  animation-duration: 19s;
+  animation-delay: 8.5s;
+}
+
+.bg-confetti i:nth-child(10) {
+  left: 86%;
+  animation-duration: 14s;
+  animation-delay: 3.5s;
+}
+
+.bg-confetti i:nth-child(11) {
+  left: 92%;
+  animation-duration: 16s;
+  animation-delay: 6.5s;
+}
+
+.bg-confetti i:nth-child(12) {
+  left: 50%;
+  animation-duration: 10s;
+  animation-delay: 9s;
+}
+
+@keyframes bgConfettiRise {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-62vh) rotate(220deg);
+    opacity: 0;
+  }
+}
+
+/* --- pause off-screen / reduced motion ------------------------------- */
+
+.bg-layer[data-active="false"] * {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-layer * {
+    animation: none;
+  }
+}
+
+/* --- responsive ------------------------------------------------------ */
+
+@media (max-width: 900px) {
+  .bg-ruler,
+  .bg-ring--b,
+  .bg-sheet--3,
+  .bg-sheet--4,
+  .bg-tag--3,
+  .bg-shape--2,
+  .bg-word,
+  .bg-speeds {
+    display: none;
+  }
+
+  .bg-ring--a {
+    width: 78vmin;
+    height: 78vmin;
+  }
+
+  .bg-stage {
+    width: 84%;
+    height: 180px;
+  }
+
+  .bg-shape--1 {
+    width: 96px;
+    height: 96px;
+  }
+
+  .bg-confetti i:nth-child(n + 7) {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .bg-sheet,
+  .bg-slashset,
+  .bg-tag {
+    display: none;
+  }
+
+  .bg-shape--3,
+  .bg-shape--4,
+  .bg-confetti i:nth-child(n + 4) {
+    display: none;
+  }
+}

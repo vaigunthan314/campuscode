@@ -13,7 +13,7 @@ export type AmbienceAPI = {
    * records a pending intent and retries once the graph + decoded buffer are
    * available.
    */
-  playLoading: () => void;
+  playLoading: () => Promise<void>;
   /** The one-and-only one-second entry whoosh. */
   whoosh: () => void;
   /** True when the browser refused to start audio without a gesture. */
@@ -494,81 +494,57 @@ export function useAmbience(): AmbienceAPI {
   // Play the loading audio once when the loading screen begins.
   // Resumes the context if needed, then starts the file from the beginning.
   // Requires an audio graph (created by a user gesture via start()/setMuted()).
-  const playLoading = useCallback(() => {
+  // Play the loading audio once when the loading screen begins.
+  // Resumes the context if needed, then starts the file from the beginning.
+  // Returns a Promise so the loading sequence can always finish, even when the
+  // browser refuses the resume (autoplay policy) or the cue never decodes.
+  const playLoading = useCallback(async (): Promise<void> => {
     const graph = graphRef.current;
     const sound = soundRef.current;
 
-    // No graph yet: mark as pending so we play once a graph is created.
+    // No graph yet: remember the request so the first gesture can honour it.
     if (!graph) {
       pendingPlayRef.current = true;
-      console.log("[playLoading] no graph, pending");
-      return;
-    }
-    console.log(
-      "[playLoading] graph exists:",
-      !!graph,
-      "buffer:",
-      !!sound.buffer,
-      "failed:",
-      sound.failed,
-      "state:",
-      graph.ctx.state,
-    );
-
-    // If we have a decoded buffer, play now (resuming the context if needed)
-    if (sound.buffer && !sound.failed) {
-      // Stop any previous playback first.
-      if (sound.currentSource) {
-        try {
-          sound.currentSource.stop();
-        } catch {
-          // Ignore if already stopped.
-        }
-        sound.currentSource = null;
-        sound.currentGain = null;
-        sound.stopTime = null;
-      }
-
-      if (graph.ctx.state === "running") {
-        console.log("[playLoading] playing immediately, state=running");
-        playLoadingFile(graph, sound);
-        return;
-      }
-      // Context suspended: resume it first, then play once the resume settles.
-      // Important: block the main thread here for the brief window while the
-      // resume settles, in the same tick as the user gesture, so we don't end
-      // up calling playLoadingFile() from a task that no longer has gesture
-      // privileges (which some browsers treat as a fresh autoplay decision).
-      const resumePromise = graph.ctx.resume();
-      void resumePromise.then(() => {
-        if (graphRef.current === graph && graph.ctx.state === "running") {
-          playLoadingFile(graph, sound);
-        }
-      });
-      // Spin-wait synchronously inside this user-gesture task so the playback
-      // starts before we return to the browser event loop. This is only safe
-      // because we are executing as a direct result of a user gesture.
-      const deadline = Date.now() + 800;
-      while (true) {
-        const st = graph.ctx.state as string;
-        console.log("[playLoading] spin check: state=", st, "running?", st === "running");
-        if (st === "running") {
-          playLoadingFile(graph, sound);
-          console.log("[playLoading] played after spin");
-          break;
-        }
-        if (Date.now() >= deadline) {
-          console.log("[playLoading] spin timeout, state=", st);
-          break;
-        }
-      }
       return;
     }
 
-    // Buffer hasn't decoded yet: mark as pending so we play once decode completes
-    // and the graph is running. The decode-effect checks this ref and triggers play.
-    if (!sound.failed) {
-      pendingPlayRef.current = true;
+    if (!sound.buffer || sound.failed) {
+      // The decode is still in flight (or failed): flushPendingPlay() picks the
+      // request up the moment the buffer lands.
+      if (!sound.failed) pendingPlayRef.current = true;
+      return;
+    }
+
+    // Stop any previous playback first.
+    if (sound.currentSource) {
+      try {
+        sound.currentSource.stop();
+      } catch {
+        // Already stopped.
+      }
+      sound.currentSource = null;
+      sound.currentGain = null;
+      sound.stopTime = null;
+    }
+
+    // Already running: play straight away.
+    if (graph.ctx.state === "running") {
+      playLoadingFile(graph, sound);
+      return;
+    }
+
+    // Resume inside the user-gesture task, then play only once the context is
+    // actually running. A refused resume must never throw into the caller.
+    try {
+      await graph.ctx.resume();
+    } catch {
+      return;
+    }
+    // Read the state through a plain string: TypeScript keeps the narrowing
+    // from the early "running" return above.
+    const stateAfterResume: string = graph.ctx.state;
+    if (graphRef.current === graph && stateAfterResume === "running") {
+      playLoadingFile(graph, sound);
     }
   }, []);
 

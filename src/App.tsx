@@ -8,7 +8,7 @@ import {
   Hackathons,
   HowItWorks,
   JoinCTA,
-  Marquee,
+
   Mission,
 } from "./components/Sections";
 
@@ -66,7 +66,7 @@ export default function App() {
       */}
       <IntroShell reducedMotion={reducedMotion} />
       <main>
-        <Marquee />
+
         {/*
           Without the pin (reduced motion) the cinematic stage cannot reveal the
           About page, so it is rendered in normal flow instead. The stage is the

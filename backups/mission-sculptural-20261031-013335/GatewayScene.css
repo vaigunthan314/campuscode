@@ -1,0 +1,294 @@
+/* 05 - THE MISSION
+   One composed section: editorial column on the left, the Three.js campus
+   gateway on the right. The frame is the canvas's only parent, so the scene
+   can never spill outside the section or create blank bands above/below it. */
+
+.mission {
+  --mission-ink: #111111;
+  --mission-muted: #777777;
+  --mission-border: #e6e6e6;
+  --mission-purple: #7455ff;
+  --mission-lime: #a5d85e;
+
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.94fr) minmax(0, 1.06fr);
+  align-items: center;
+  gap: clamp(24px, 3.4vw, 64px);
+  min-height: clamp(620px, 88svh, 900px);
+  padding: clamp(40px, 6vh, 84px) clamp(22px, 5vw, 88px);
+  overflow: hidden;
+  background: #ffffff;
+  isolation: isolate;
+}
+
+/* Restrained technical grid, fading out before it reaches the gateway. */
+.mission-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+    to right,
+    rgba(17, 17, 17, 0.055) 1px,
+    transparent 1px
+  );
+  background-size: clamp(84px, 9vw, 132px) 100%;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    rgba(0, 0, 0, 0.4) 44%,
+    transparent 70%
+  );
+  mask-image: linear-gradient(
+    to right,
+    #000 0%,
+    rgba(0, 0, 0, 0.4) 44%,
+    transparent 70%
+  );
+}
+
+/* --- editorial ---------------------------------------------------------- */
+
+.mission-editorial {
+  position: relative;
+  z-index: 2;
+  min-width: 0;
+  max-width: 560px;
+}
+
+.mission-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 clamp(18px, 2.6vh, 30px);
+  color: var(--mission-purple);
+  font-family: var(--mono, "DM Mono", "SFMono-Regular", monospace);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity 620ms ease,
+    transform 620ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.mission-label.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mission-label__rule {
+  width: 26px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* Small muted lime square accent. */
+.mission-accent {
+  width: 9px;
+  height: 9px;
+  background: var(--mission-lime);
+  display: inline-block;
+  flex: none;
+}
+
+.mission-title {
+  margin: 0;
+  color: var(--mission-ink);
+  font-family: var(--sans, "Inter", "Helvetica Neue", Arial, sans-serif);
+  font-weight: 900;
+  font-size: clamp(56px, 7.1vw, 116px);
+  line-height: 0.86;
+  letter-spacing: -0.06em;
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 760ms ease 40ms,
+    transform 860ms cubic-bezier(0.22, 0.61, 0.36, 1) 40ms;
+}
+
+.mission-title span {
+  display: block;
+}
+
+.mission-title.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mission-statement {
+  max-width: 40ch;
+  margin: clamp(20px, 2.8vh, 32px) 0 0;
+  color: var(--mission-muted);
+  font-family: var(--sans, "Inter", "Helvetica Neue", Arial, sans-serif);
+  font-size: clamp(15px, 1.1vw, 17px);
+  line-height: 1.68;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 780ms ease 120ms,
+    transform 860ms cubic-bezier(0.22, 0.61, 0.36, 1) 120ms;
+}
+
+.mission-statement.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.mission-tagline {
+  margin: clamp(22px, 3vh, 34px) 0 0;
+  color: var(--mission-ink);
+  font-family: var(--mono, "DM Mono", "SFMono-Regular", monospace);
+  font-size: clamp(9px, 0.8vw, 11px);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 820ms ease 200ms,
+    transform 880ms cubic-bezier(0.22, 0.61, 0.36, 1) 200ms;
+}
+
+.mission-tagline.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- gateway ------------------------------------------------------------ */
+
+.mission-visual {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mission-frame {
+  position: relative;
+  width: 100%;
+  height: clamp(380px, 58vh, 620px);
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid var(--mission-border);
+  filter: blur(8px);
+  transition: filter 1100ms ease;
+}
+
+.mission-frame.is-focused {
+  filter: blur(0);
+}
+
+.mission-frame canvas {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.mission-visual__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--mission-muted);
+  font-family: var(--mono, "DM Mono", "SFMono-Regular", monospace);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* --- fallback when WebGL is unavailable --------------------------------- */
+
+.mission-scene-fallback {
+  position: absolute;
+  inset: 0;
+  background-color: #ffffff;
+  background-image:
+    linear-gradient(to right, rgba(17, 17, 17, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(17, 17, 17, 0.06) 1px, transparent 1px),
+    radial-gradient(circle at 50% 38%, #ffffff 0%, #f4f3ef 68%, #e9e7e1 100%);
+  background-size: 96px 96px, 96px 96px, 100% 100%;
+}
+
+/* --- reduced motion ----------------------------------------------------- */
+
+.mission[data-reduced="1"] .mission-label,
+.mission[data-reduced="1"] .mission-title,
+.mission[data-reduced="1"] .mission-statement,
+.mission[data-reduced="1"] .mission-tagline {
+  opacity: 1;
+  transform: none;
+  transition-duration: 1ms;
+}
+
+.mission[data-reduced="1"] .mission-frame {
+  filter: none;
+  transition-duration: 1ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mission-label,
+  .mission-title,
+  .mission-statement,
+  .mission-tagline {
+    opacity: 1;
+    transform: none;
+    transition-duration: 1ms;
+  }
+
+  .mission-frame {
+    filter: none;
+    transition-duration: 1ms;
+  }
+}
+
+/* --- responsive --------------------------------------------------------- */
+
+@media (max-width: 1024px) {
+  .mission {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(24px, 4vh, 40px);
+    min-height: 0;
+    padding: clamp(40px, 6vh, 72px) clamp(20px, 6vw, 48px);
+  }
+
+  .mission-editorial {
+    max-width: 720px;
+  }
+
+  .mission-title {
+    font-size: clamp(46px, 10vw, 84px);
+  }
+
+  .mission-frame {
+    height: clamp(320px, 46vh, 460px);
+  }
+
+  .mission-grid {
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 62%);
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 62%);
+  }
+}
+
+@media (max-width: 600px) {
+  .mission-title {
+    font-size: clamp(40px, 13vw, 58px);
+  }
+
+  .mission-statement {
+    font-size: 14px;
+  }
+
+  .mission-tagline {
+    font-size: 9px;
+    letter-spacing: 0.14em;
+  }
+
+  .mission-frame {
+    height: clamp(260px, 40vh, 330px);
+  }
+}
