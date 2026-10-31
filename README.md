@@ -1,6 +1,6 @@
-# CampusCode — Cinematic Scroll Intro
+# CampusCode 
 
-A scroll-driven introduction for [CampusCode](https://campus-code-ten.vercel.app/), built with React, TypeScript, GSAP ScrollTrigger and React Three Fiber.
+A faithful,closest and creative recreation of [CampusCode](https://campus-code-ten.vercel.app/), the hackathon arena for students, teams and organizers.**
 
 The first frame is pure black. A scroll indicator is the only visible element. Scrolling opens a thin central slit, reveals the full CampusCode hero, then closes the hero back into the slit before a lime diagonal flash gives way to the editorial sections and the rest of the site.
 
