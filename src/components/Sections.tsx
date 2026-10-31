@@ -306,8 +306,6 @@ export function Experience() {
     <section className="ar-experience landing-experience" id="experience">
       <div className="ar-experience__bg" aria-hidden="true">
         <div className="ar-experience__grid" />
-        <div className="ar-experience__blob ar-experience__blob--violet" />
-        <div className="ar-experience__blob ar-experience__blob--lime" />
         <span className="ar-experience__corner ar-experience__corner--tl" aria-hidden="true" />
         <span className="ar-experience__corner ar-experience__corner--bl" aria-hidden="true" />
         <span className="ar-experience__chip ar-experience__chip--1" aria-hidden="true">1000+ STUDENTS</span>
@@ -440,7 +438,7 @@ function ExperienceSweepHint() {
     >
       <svg
         className="ar-experience__sweep-svg"
-        viewBox="0 0 1200 800"
+        viewBox="0 0 1200 220"
         preserveAspectRatio="none"
         width="100%"
         height="100%"
@@ -449,15 +447,15 @@ function ExperienceSweepHint() {
       >
         <path
           className="ar-experience__sweep-curve"
-          d="M100 740 C 450 600, 750 300, 1100 140"
+          d="M90 200 C 420 172, 780 92, 1110 26"
           stroke="currentColor"
           fill="none"
           strokeWidth="1.5"
           strokeLinecap="round"
         />
-        <circle className="ar-experience__sweep-anchor" cx="1100" cy="140" r="4" />
-        <circle className="ar-experience__sweep-anchor" cx="750" cy="370" r="2.4" />
-        <circle className="ar-experience__sweep-anchor" cx="400" cy="590" r="2.4" />
+        <circle className="ar-experience__sweep-anchor" cx="1110" cy="26" r="4" />
+        <circle className="ar-experience__sweep-anchor" cx="780" cy="102" r="2.4" />
+        <circle className="ar-experience__sweep-anchor" cx="420" cy="182" r="2.4" />
       </svg>
     </div>
   );

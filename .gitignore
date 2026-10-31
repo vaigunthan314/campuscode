@@ -1,0 +1,11 @@
+node_modules
+dist
+tmp
+backups
+.recovery-backups
+shots3
+video-temp
+.DS_Store
+.env
+.env.*
+*.log

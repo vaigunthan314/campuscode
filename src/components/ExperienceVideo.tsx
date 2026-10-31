@@ -277,7 +277,6 @@ export function ExperienceVideo() {
         />
 
         <div className="xv-scrim" aria-hidden="true" />
-        <div className="experience-video-scanlines" aria-hidden="true" />
         <div className="experience-video-text" aria-hidden="true">
           <span>02</span>
           <span className="experience-video-dash">—</span>
@@ -286,11 +285,10 @@ export function ExperienceVideo() {
 
         <span className="xv-live" aria-hidden="true">● LIVE STORY</span>
 
-        <div className="xv-glow-ring" aria-hidden="true" />
-
         {!error ? (
           <span className="experience-play" aria-hidden="true">
             <span className="experience-play-icon">▶</span>
+            <span className="experience-play-label">PLAY STORY</span>
           </span>
         ) : null}
 
@@ -338,6 +336,8 @@ export function ExperienceVideo() {
           </div>
         </div>
       ) : null}
+
+      <div className="xv-strip" aria-hidden="true" />
     </div>
   );
 }
