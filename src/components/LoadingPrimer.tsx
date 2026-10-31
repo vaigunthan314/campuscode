@@ -6,6 +6,8 @@ type LoadingPrimerProps = {
   ambience: AmbienceAPI;
   onReady: () => void;
   reducedMotion?: boolean;
+  /** False when the entry gate already started the loading cue in its gesture. */
+  autoPlay?: boolean;
 };
 
 type SliceSpec = {
@@ -83,7 +85,12 @@ function Crosshair({ top, left, size }: { top: string; left: string; size: numbe
   );
 }
 
-export function LoadingPrimer({ ambience, onReady, reducedMotion = false }: LoadingPrimerProps) {
+export function LoadingPrimer({
+  ambience,
+  onReady,
+  reducedMotion = false,
+  autoPlay = true,
+}: LoadingPrimerProps) {
   const [phase, setPhase] = useState<"loading" | "ready">("loading");
 
   const shellRef = useRef<HTMLDivElement | null>(null);
@@ -325,8 +332,9 @@ export function LoadingPrimer({ ambience, onReady, reducedMotion = false }: Load
 
     writeProgress(0);
 
-    // Play the loading audio once, from the beginning.
-    ambienceRef.current.playLoading();
+    // Play the loading audio once, from the beginning — unless the entry gate
+    // already started it inside its own user gesture.
+    if (autoPlay) ambienceRef.current.playLoading();
 
     const step = (now: number) => {
       const elapsed = Math.min(1, (now - startedAt) / total);
@@ -353,7 +361,7 @@ export function LoadingPrimer({ ambience, onReady, reducedMotion = false }: Load
 
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [reducedMotion, writeProgress]);
+  }, [autoPlay, reducedMotion, writeProgress]);
 
   return (
     <div className="cine-primer-shell" ref={shellRef}>

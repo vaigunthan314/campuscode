@@ -1,0 +1,155 @@
+/* Entry gate — the gesture that unlocks the loading sound.
+   Flat colours only: #f7f7fc / #0d0d1f / #7361F5 / #b8e04a. */
+
+.cc-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f7f7fc;
+  opacity: 1;
+  transition: opacity 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cc-gate.is-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cc-gate__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  max-width: 520px;
+  text-align: center;
+}
+
+/* The /// mark, scaled up for the gate only. */
+.cc-gate__mark {
+  display: inline-flex;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: cc-gate-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) 0ms forwards;
+}
+
+.cc-gate__mark .landing-logo-mark {
+  gap: 6px;
+}
+
+.cc-gate__mark .landing-logo-mark span {
+  width: 12px;
+  height: 46px;
+}
+
+.cc-gate__label {
+  margin: 0;
+  color: #0d0d1f;
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: cc-gate-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) 50ms forwards;
+}
+
+.cc-gate__cta {
+  display: inline-flex;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: cc-gate-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) 150ms forwards;
+}
+
+.cc-gate__enter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 56px;
+  padding: 0 34px;
+  border: 0;
+  border-radius: 999px;
+  background: #0d0d1f;
+  color: #ffffff;
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cc-gate__enter:hover {
+  transform: translateY(-2px);
+}
+
+.cc-gate__enter:active {
+  transform: scale(0.97);
+}
+
+.cc-gate__enter:focus-visible {
+  outline: 2px solid #7361f5;
+  outline-offset: 3px;
+}
+
+.cc-gate__hint {
+  margin: 0;
+  color: rgba(13, 13, 31, 0.55);
+  font-family: var(--mono, "DM Mono", monospace);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(16px);
+  animation: cc-gate-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) 250ms forwards;
+}
+
+@keyframes cc-gate-rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 480px) {
+  .cc-gate__inner {
+    width: 100%;
+    gap: 16px;
+  }
+
+  .cc-gate__cta {
+    width: 100%;
+  }
+
+  .cc-gate__enter {
+    width: 100%;
+    padding: 0 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cc-gate {
+    transition: none;
+  }
+
+  .cc-gate__mark,
+  .cc-gate__label,
+  .cc-gate__cta,
+  .cc-gate__hint {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .cc-gate__enter {
+    transition: none;
+  }
+
+  .cc-gate__enter:hover,
+  .cc-gate__enter:active {
+    transform: none;
+  }
+}

@@ -591,9 +591,10 @@ export function useAmbience(): AmbienceAPI {
       const now = graph.ctx.currentTime;
       gain.gain.cancelScheduledValues(now);
       gain.gain.setValueAtTime(gain.gain.value, now);
-      gain.gain.linearRampToValueAtTime(0.0001, now + 0.18);
+      // Fade over 400ms, then stop and forget the source.
+      gain.gain.linearRampToValueAtTime(0.0001, now + 0.4);
       try {
-        source.stop(now + 0.2);
+        source.stop(now + 0.42);
       } catch {
         // Already stopped.
       }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LoadingPrimer } from "./LoadingPrimer";
 import { CinematicIntro } from "./CinematicIntro";
+import { EnterGate } from "./EnterGate";
 import { useAmbience } from "./Ambience";
 import { scrollToSection } from "./scrollToSection";
 
@@ -11,30 +12,80 @@ type IntroShellProps = {
 const ENTRY_SCROLL_PX = 24;
 const AUDIO_RELEASE_MS = 1600;
 const SKIP_INTRO_KEY = "campuscode:skip-intro";
+/** Set once the gate has been passed: later visits this session skip it. */
+const ENTERED_KEY = "cc-entered";
+const GATE_FADE_MS = 400;
 
 export function IntroShell({ reducedMotion }: IntroShellProps) {
   const ambience = useAmbience();
-  const { start, whoosh, stop } = ambience;
+  const { start, whoosh, stop, unlock, playLoading } = ambience;
 
-  // A return visit from an auth page skips the boot screen and starts on the
-  // finished hero instead of waiting for a scroll that never comes.
-  const [skipIntro] = useState(
-    () => sessionStorage.getItem(SKIP_INTRO_KEY) === "1",
+  // A return visit from an auth page, or any visit after the gate has already
+  // been passed this session, goes straight to the finished hero: no gate, no
+  // loader and no loading sound.
+  const [skipped] = useState(() => {
+    try {
+      if (sessionStorage.getItem(SKIP_INTRO_KEY) === "1") return true;
+      return sessionStorage.getItem(ENTERED_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+
+  const [gateState, setGateState] = useState<"shown" | "leaving" | "gone">(
+    skipped ? "gone" : "shown",
   );
-  const [ready, setReady] = useState(skipIntro);
-  const [entered, setEntered] = useState(skipIntro);
+  const [ready, setReady] = useState(skipped);
+  const [entered, setEntered] = useState(skipped);
 
   useEffect(() => {
-    if (!skipIntro) return;
-    sessionStorage.removeItem(SKIP_INTRO_KEY);
-  }, [skipIntro]);
+    if (sessionStorage.getItem(SKIP_INTRO_KEY) === "1") {
+      sessionStorage.removeItem(SKIP_INTRO_KEY);
+    }
+  }, []);
 
   const whooshedRef = useRef(false);
+  const gateEnteredRef = useRef(false);
+  const gateAudioRef = useRef(false);
+  const gateTimerRef = useRef<number | null>(null);
 
   const handleReady = useCallback(() => setReady(true), []);
 
   // Fired once, by the intro timeline, when the hero is fully revealed.
   const handleEntered = useCallback(() => setEntered(true), []);
+
+  // The gate press is the gesture browsers need. Everything happens inside this
+  // one handler: mark the session, resume the audio context, start the loading
+  // cue, then fade the gate out and let the loader mount underneath.
+  const handleGateEnter = useCallback(() => {
+    if (gateEnteredRef.current) return;
+    gateEnteredRef.current = true;
+
+    try {
+      sessionStorage.setItem(ENTERED_KEY, "1");
+    } catch {
+      // Private mode without storage: the gate still works for this visit.
+    }
+
+    gateAudioRef.current = true;
+    unlock();
+    void playLoading();
+
+    setGateState("leaving");
+    gateTimerRef.current = window.setTimeout(() => {
+      gateTimerRef.current = null;
+      setGateState("gone");
+    }, GATE_FADE_MS);
+  }, [unlock, playLoading]);
+
+  useEffect(() => {
+    return () => {
+      if (gateTimerRef.current !== null) {
+        window.clearTimeout(gateTimerRef.current);
+        gateTimerRef.current = null;
+      }
+    };
+  }, []);
 
   // The loading screen must be the very first frame, never a restored scroll
   // position somewhere inside the site.
@@ -152,20 +203,30 @@ export function IntroShell({ reducedMotion }: IntroShellProps) {
   }, [entered, stop]);
 
   return (
-    <CinematicIntro
-      reducedMotion={reducedMotion}
-      ready={ready}
-      entered={entered}
-      onEntered={handleEntered}
-      primer={
-        entered ? undefined : (
-          <LoadingPrimer
-            ambience={ambience}
-            onReady={handleReady}
-            reducedMotion={reducedMotion}
-          />
-        )
-      }
-    />
+    <>
+      {gateState !== "gone" ? (
+        <EnterGate
+          onEnter={handleGateEnter}
+          leaving={gateState === "leaving"}
+        />
+      ) : null}
+
+      <CinematicIntro
+        reducedMotion={reducedMotion}
+        ready={ready}
+        entered={entered}
+        onEntered={handleEntered}
+        primer={
+          entered || gateState === "shown" ? undefined : (
+            <LoadingPrimer
+              ambience={ambience}
+              onReady={handleReady}
+              reducedMotion={reducedMotion}
+              autoPlay={!gateAudioRef.current}
+            />
+          )
+        }
+      />
+    </>
   );
 }
