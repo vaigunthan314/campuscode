@@ -1,6 +1,6 @@
 # CampusCode 
 
-A faithful,closest and creative recreation of [CampusCode](https://campus-code-ten.vercel.app/), the hackathon arena for students, teams and organizers.**
+A faithful,closest and creative recreation of [CampusCode](https://campus-code-ten.l.app/), the hackathon arena for students, teams and organizers.**
 
 The first frame is pure black. A scroll indicator is the only visible element. Scrolling opens a thin central slit, reveals the full CampusCode hero, then closes the hero back into the slit before a lime diagonal flash gives way to the editorial sections and the rest of the site.
 
@@ -43,3 +43,6 @@ npm run preview
 ## Integration note
 
 The **Login** and **Join CampusCode** links currently point to the existing live CampusCode app (`campus-code-ten.vercel.app`). If this build is deployed as the new root site with local auth routes, update `LOGIN_URL` and `JOIN_URL` in `src/components/Hero.tsx`.
+
+
+live link : https://campuscode-sooty.vercel.app/
