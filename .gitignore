@@ -9,3 +9,7 @@ video-temp
 .env
 .env.*
 *.log
+.agents/
+.claude/
+.freebuff/
+skills-lock.json
